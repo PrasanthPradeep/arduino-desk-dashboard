@@ -489,6 +489,13 @@
             margin: 0;
         }
 
+        .section-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
         .show-all-toggle {
             padding: 6px 12px;
             border-radius: 8px;
@@ -499,6 +506,27 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.15s;
+        }
+
+        .refresh-services-button {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .refresh-services-button:hover {
+            background: var(--surface-2);
+        }
+
+        .refresh-services-button:disabled {
+            cursor: wait;
+            opacity: 0.6;
         }
 
         .show-all-toggle:hover {
@@ -526,6 +554,13 @@
 
         .phase3-service-count strong {
             color: var(--text);
+        }
+
+        .phase3-services-refresh-info {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+            text-align: right;
         }
 
         .phase3-services-grid {
@@ -665,6 +700,15 @@
                 grid-template-columns: 1fr;
             }
 
+            .phase3-services-summary {
+                flex-wrap: wrap;
+            }
+
+            .phase3-services-refresh-info {
+                width: 100%;
+                text-align: left;
+            }
+
             .phase3-services-grid {
                 grid-template-columns: 1fr;
                 max-height: 60vh;
@@ -676,10 +720,19 @@
                 gap: 8px;
             }
 
+            .section-actions {
+                width: 100%;
+            }
+
             .show-all-toggle {
                 width: fit-content;
-                margin-left: auto;
                 text-align: center;
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .refresh-services-button {
+                margin-left: auto;
                 padding: 10px 12px;
                 font-size: 13px;
             }
@@ -1014,13 +1067,23 @@
 
         <div class="section-header">
             <h2>Services</h2>
-            <button
-                class="show-all-toggle"
-                id="show-all-toggle"
-                onclick="toggleShowAll()"
-            >
-                <span id="show-all-label">Show All</span>
-            </button>
+            <div class="section-actions">
+                <button
+                    class="refresh-services-button"
+                    id="refresh-services-button"
+                    type="button"
+                    onclick="refreshServicesStatus()"
+                >
+                    Refresh
+                </button>
+                <button
+                    class="show-all-toggle"
+                    id="show-all-toggle"
+                    onclick="toggleShowAll()"
+                >
+                    <span id="show-all-label">Show All</span>
+                </button>
+            </div>
         </div>
 
         <div class="card">
@@ -1039,6 +1102,11 @@
                     id="services-inactive"
                 >
                     Inactive: —
+                </div>
+
+                <div class="phase3-services-refresh-info">
+                    <div>Auto refresh: 15 minutes</div>
+                    <div id="services-last-update">Last update: —</div>
                 </div>
 
             </div>
@@ -2178,6 +2246,12 @@
             return;
         }
 
+        setText(
+            "services-last-update",
+            "Last update: " +
+            new Date().toLocaleTimeString()
+        );
+
         currentShowAll = serviceData.show_all || false;
         updateShowAllButton();
 
@@ -2394,6 +2468,46 @@
         }
     }
 
+    async function refreshServicesStatus() {
+        const button = document.getElementById(
+            "refresh-services-button"
+        );
+
+        if (button) {
+            button.disabled = true;
+            button.textContent = "Refreshing...";
+        }
+
+        try {
+            const response = await fetch(
+                "/api/services",
+                {
+                    cache: "no-store"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    "Service status request failed"
+                );
+            }
+
+            updateServices(
+                await response.json()
+            );
+        } catch (error) {
+            console.error(
+                "Service status refresh failed:",
+                error
+            );
+        } finally {
+            if (button) {
+                button.disabled = false;
+                button.textContent = "Refresh";
+            }
+        }
+    }
+
 
 
     /*
@@ -2509,6 +2623,11 @@
     setInterval(
         updateDashboard,
         5000
+    );
+
+    setInterval(
+        refreshServicesStatus,
+        900000
     );
 
 </script>
