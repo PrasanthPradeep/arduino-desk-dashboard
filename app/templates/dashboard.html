@@ -562,6 +562,58 @@
             color: var(--muted);
         }
 
+        .service-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .service-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.15s;
+            padding: 0;
+        }
+
+        .service-btn:hover {
+            background: var(--surface-2);
+        }
+
+        .service-btn.add {
+            color: var(--green);
+            border-color: var(--green);
+        }
+
+        .service-btn.add:hover {
+            background: rgba(22, 163, 74, 0.1);
+        }
+
+        .service-btn.remove {
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        .service-btn.remove:hover {
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .service-btn.curated {
+            background: var(--text);
+            color: var(--surface);
+            border-color: var(--text);
+            cursor: default;
+        }
+
         @media (max-width: 650px) {
             .phase3-grid {
                 grid-template-columns: 1fr;
@@ -2006,6 +2058,52 @@
         }
     }
 
+    let curatedServices = {};
+
+    async function loadCuratedServices() {
+        try {
+            const response = await fetch("/api/services/config");
+            if (response.ok) {
+                const config = await response.json();
+                curatedServices = config.services || {};
+            }
+        } catch (error) {
+            console.error("Failed to load curated services:", error);
+        }
+    }
+
+    async function addToCurated(serviceId, serviceName) {
+        try {
+            const response = await fetch(
+                `/api/services/config/add?service_name=${encodeURIComponent(serviceId)}&display_name=${encodeURIComponent(serviceName)}`,
+                { method: "POST" }
+            );
+
+            if (response.ok) {
+                curatedServices[serviceId] = serviceName;
+                updatePhase3();
+            }
+        } catch (error) {
+            console.error("Failed to add service:", error);
+        }
+    }
+
+    async function removeFromCurated(serviceId) {
+        try {
+            const response = await fetch(
+                `/api/services/config/remove?service_name=${encodeURIComponent(serviceId)}`,
+                { method: "POST" }
+            );
+
+            if (response.ok) {
+                delete curatedServices[serviceId];
+                updatePhase3();
+            }
+        } catch (error) {
+            console.error("Failed to remove service:", error);
+        }
+    }
+
     function updateShowAllButton() {
         const button = document.getElementById("show-all-toggle");
         const label = document.getElementById("show-all-label");
@@ -2105,6 +2203,9 @@
             card.className =
                 "phase3-service-card";
 
+            const nameContainer =
+                document.createElement("div");
+
             const name =
                 document.createElement("div");
 
@@ -2114,11 +2215,13 @@
             name.textContent =
                 service.name || serviceId;
 
-            const status =
-                document.createElement("div");
+            nameContainer.appendChild(name);
 
             const active =
                 Boolean(service.active);
+
+            const status =
+                document.createElement("div");
 
             status.className =
                 "phase3-service-status " +
@@ -2136,8 +2239,72 @@
                         "Inactive"
                     );
 
-            card.appendChild(name);
+            const actions =
+                document.createElement("div");
+
+            actions.className =
+                "service-actions";
+
+            if (currentShowAll) {
+                const isCurated =
+                    serviceId in curatedServices;
+
+                if (isCurated) {
+                    const badge =
+                        document.createElement("div");
+
+                    badge.className =
+                        "service-btn curated";
+
+                    badge.textContent = "✓";
+                    badge.title = "In curated list";
+
+                    actions.appendChild(badge);
+                } else {
+                    const addBtn =
+                        document.createElement("button");
+
+                    addBtn.className =
+                        "service-btn add";
+
+                    addBtn.textContent = "+";
+                    addBtn.title = "Add to curated list";
+
+                    addBtn.addEventListener(
+                        "click",
+                        function() {
+                            addToCurated(
+                                serviceId,
+                                service.name || serviceId
+                            );
+                        }
+                    );
+
+                    actions.appendChild(addBtn);
+                }
+            } else {
+                const removeBtn =
+                    document.createElement("button");
+
+                removeBtn.className =
+                    "service-btn remove";
+
+                removeBtn.textContent = "−";
+                removeBtn.title = "Remove from curated list";
+
+                removeBtn.addEventListener(
+                    "click",
+                    function() {
+                        removeFromCurated(serviceId);
+                    }
+                );
+
+                actions.appendChild(removeBtn);
+            }
+
+            card.appendChild(nameContainer);
             card.appendChild(status);
+            card.appendChild(actions);
 
             grid.appendChild(card);
         }
@@ -2305,6 +2472,7 @@
     updateDashboard();
     updatePhase3();
     loadShowAllState();
+    loadCuratedServices();
 
 
     /*
