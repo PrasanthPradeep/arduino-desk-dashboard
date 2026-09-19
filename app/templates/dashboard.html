@@ -614,8 +614,14 @@
             background: var(--surface-2);
             color: var(--muted);
             border-color: var(--border);
-            cursor: default;
+            cursor: pointer;
             font-size: 11px;
+        }
+
+        .service-btn.curated:hover {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--red);
+            border-color: var(--red);
         }
 
         @media (max-width: 650px) {
@@ -2256,39 +2262,38 @@
                 const isCurated =
                     serviceId in curatedServices;
 
-                if (isCurated) {
-                    const badge =
-                        document.createElement("div");
+                const toggleBtn =
+                    document.createElement("button");
 
-                    badge.className =
-                        "service-btn curated";
+                toggleBtn.className =
+                    "service-btn " +
+                    (isCurated
+                        ? "curated"
+                        : "add");
 
-                    badge.textContent = "✓";
-                    badge.title = "In curated list";
+                toggleBtn.textContent =
+                    isCurated ? "✓" : "+";
 
-                    actions.appendChild(badge);
-                } else {
-                    const addBtn =
-                        document.createElement("button");
+                toggleBtn.title =
+                    isCurated
+                        ? "Remove from curated list"
+                        : "Add to curated list";
 
-                    addBtn.className =
-                        "service-btn add";
-
-                    addBtn.textContent = "+";
-                    addBtn.title = "Add to curated list";
-
-                    addBtn.addEventListener(
-                        "click",
-                        function() {
+                toggleBtn.addEventListener(
+                    "click",
+                    function() {
+                        if (isCurated) {
+                            removeFromCurated(serviceId);
+                        } else {
                             addToCurated(
                                 serviceId,
                                 service.name || serviceId
                             );
                         }
-                    );
+                    }
+                );
 
-                    actions.appendChild(addBtn);
-                }
+                actions.appendChild(toggleBtn);
             }
 
             card.appendChild(nameContainer);
