@@ -44,6 +44,10 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            overflow-x: hidden;
+        }
+
         body {
             margin: 0;
             font-family:
@@ -627,6 +631,22 @@
             .container {
                 padding: 16px 12px;
                 overflow-x: hidden;
+            }
+
+            header {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                align-items: start;
+                gap: 12px;
+            }
+
+            .header-right {
+                grid-row: 1;
+                grid-column: 2;
+            }
+
+            .refresh-info {
+                display: none;
             }
 
             .phase3-grid {
