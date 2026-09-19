@@ -30,7 +30,7 @@ The dashboard displays:
 
 ### Storage Monitoring
 
-SMART information is collected for monitored drives, including:
+SMART information is collected for configured drives, including:
 
 - Drive model
 - Serial number
@@ -46,6 +46,10 @@ SMART information is collected for monitored drives, including:
 - Self-test failure LBA when available
 
 The dashboard also performs an assessment of drive health and can distinguish between normal, warning, and critical conditions.
+
+Drives are configured via `drives.json` and can be managed from the dashboard UI.
+
+On first run, drives are auto-detected using `lsblk` and `/proc/mounts`.
 
 ### Network Monitoring
 
@@ -68,9 +72,13 @@ Ping: 0.6 ms
 
 ### Service Monitoring
 
-The dashboard monitors important Linux systemd services.
+The dashboard monitors Linux systemd services using a hybrid approach:
 
-The default configuration includes:
+**Curated List:** A default set of important services configured in `services.json`.
+
+**Show All Mode:** Auto-detects all active systemd services with a toggle button.
+
+The default curated configuration includes:
 
 * Homeserver Dashboard
 * Arduino Desk Display
@@ -81,7 +89,7 @@ The default configuration includes:
 * Samba NetBIOS
 * Tailscale
 
-The service list can be customized according to the services installed on your server.
+Services can be added to or removed from the curated list directly from the dashboard UI.
 
 ### Arduino Integration
 
@@ -167,6 +175,8 @@ homeserverDashboard/
 │   └── templates/
 │       └── dashboard.html
 │
+├── services.json           # Service monitoring config (auto-managed)
+├── drives.json             # Drive monitoring config (auto-generated)
 ├── .gitignore
 ├── README.md
 ├── requirements.txt
@@ -578,54 +588,29 @@ The dashboard exposes several internal HTTP endpoints.
 GET /api/system-info
 ```
 
-Example:
-
-```json
-{
-    "hostname": "homeserver",
-    "os": "Linux",
-    "os_release": "6.12.x",
-    "kernel": "6.12.x",
-    "architecture": "x86_64",
-    "cpu_model": "Intel(R) Core(TM) i3-2100 CPU @ 3.10GHz",
-    "cpu_cores": 2,
-    "cpu_threads": 4,
-    "uptime_seconds": 24377.1,
-    "boot_time": 1789800186.0
-}
-```
-
----
-
 ### Services API
 
 ```http
 GET /api/services
 ```
 
-Example:
+### Services Configuration
 
-```json
-{
-    "services": {
-        "homeserverDashboard": {
-            "name": "Homeserver Dashboard",
-            "status": "active",
-            "active": true
-        },
-        "ssh": {
-            "name": "SSH Server",
-            "status": "active",
-            "active": true
-        }
-    },
-    "total": 2,
-    "active": 2,
-    "inactive": 0
-}
+```http
+GET  /api/services/config
+POST /api/services/config/toggle-show-all
+POST /api/services/config/add?service_name=X&display_name=Y
+POST /api/services/config/remove?service_name=X
 ```
 
----
+### Drives Configuration
+
+```http
+GET  /api/drives/config
+GET  /api/drives/discover
+POST /api/drives/config/add?serial=X&display_name=Y&mount=Z
+POST /api/drives/config/remove?serial=X
+```
 
 ### Dashboard API
 
@@ -633,55 +618,7 @@ Example:
 GET /api/dashboard
 ```
 
-This endpoint provides the combined dashboard data.
-
-It includes:
-
-```text
-system
-smart
-network
-arduino
-timestamp
-```
-
-Example structure:
-
-```json
-{
-    "timestamp": 1789823895.2,
-
-    "system": {
-        "cpu_usage": 11.3,
-        "ram_usage": 19.8,
-        "ram_used_gb": 1.13,
-        "ram_total_gb": 5.7,
-        "storage_usage": 0.7,
-        "storage_used_gb": 10.09,
-        "storage_free_gb": 1287.69,
-        "storage_total_gb": 1367.38,
-        "cpu_temperature": 51.0
-    },
-
-    "smart": {
-        "last_updated": 1789823887.4,
-        "interval_seconds": 1800,
-        "drives": {}
-    },
-
-    "network": {
-        "internet_ping_ms": 20.9,
-        "router_ping_ms": 0.6,
-        "internet_status": "ONLINE",
-        "router_status": "ONLINE"
-    },
-
-    "arduino": {
-        "status": "active",
-        "active": true
-    }
-}
-```
+This endpoint provides the combined dashboard data including system, SMART, network, and Arduino information.
 
 ---
 
@@ -715,33 +652,42 @@ curl -s http://127.0.0.1:8000/
 
 ## Service Monitoring Configuration
 
-The monitored systemd services are configured in:
+Services are configured in `services.json`:
 
-```text
-app/metrics.py
-```
-
-The configuration uses a dictionary similar to:
-
-```python
-MONITORED_SERVICES = {
-    "homeserverDashboard": "Homeserver Dashboard",
-    "arduino-desk": "Arduino Desk Display",
-    "ssh": "SSH Server",
-    "docker": "Docker",
-    "smartmontools": "SMART Monitoring",
-    "smbd": "Samba SMB",
-    "nmbd": "Samba NetBIOS",
-    "tailscaled": "Tailscale",
+```json
+{
+    "show_all": false,
+    "services": {
+        "homeserverDashboard": "Homeserver Dashboard",
+        "arduino-desk": "Arduino Desk Display",
+        "ssh": "SSH Server",
+        "docker": "Docker",
+        "smartmontools": "SMART Monitoring",
+        "smbd": "Samba SMB",
+        "nmbd": "Samba NetBIOS",
+        "tailscaled": "Tailscale"
+    }
 }
 ```
 
-To monitor another service, add it to this dictionary.
+### Curated Mode
 
-For example:
+The dashboard shows only services listed in the `services` dictionary.
 
-```python
-"nginx": "Nginx",
+### Show All Mode
+
+Toggle "Show All" in the dashboard to auto-detect all active systemd services.
+
+In this mode, you can:
+- Click **+** to add a service to the curated list
+- Click **✓** (red) to remove a service from the curated list
+
+### Adding a Service Manually
+
+Edit `services.json` and add the service:
+
+```json
+"nginx": "Nginx Web Server"
 ```
 
 The service must exist on the Linux system.
@@ -752,19 +698,53 @@ Check available services:
 systemctl list-units --type=service
 ```
 
-Check a specific service:
-
-```bash
-systemctl status nginx
-```
-
 ---
 
 ## Storage and SMART Monitoring
 
 SMART monitoring is particularly important for a home server because storage failures can result in data loss.
 
-The dashboard tracks attributes such as:
+### Drive Configuration
+
+Drives are configured in `drives.json`:
+
+```json
+{
+    "drives": {
+        "785BMTYFS": {
+            "display_name": "TOSHIBA HDWD110",
+            "mount": "/srv/storage"
+        },
+        "Z6E8MK2F": {
+            "display_name": "ST500DM002-1BD142",
+            "mount": "/"
+        }
+    }
+}
+```
+
+**Key points:**
+- Drives are identified by serial number (stable across reboots)
+- If no serial number exists, device name (e.g. `sda`) is used
+- Mount points are auto-detected from `/proc/mounts` on first run
+- Drives can be added/removed from the dashboard UI
+
+### Auto-Detection
+
+On first run (or when `drives.json` is empty), drives are auto-detected:
+1. `lsblk` scans block devices
+2. `/proc/mounts` provides mount points
+3. `drives.json` is created automatically
+
+### Manual Configuration
+
+If auto-detection doesn't find the correct mount point:
+
+1. Click **⚙** on the drive card
+2. Enter the mount point (e.g. `/srv/storage`)
+3. The dashboard will start monitoring that drive
+
+### SMART Attributes
 
 ```text
 Temperature
@@ -1301,6 +1281,18 @@ Check services:
 curl -s http://127.0.0.1:8000/api/services | python -m json.tool
 ```
 
+Check services config:
+
+```bash
+curl -s http://127.0.0.1:8000/api/services/config | python -m json.tool
+```
+
+Check drives config:
+
+```bash
+curl -s http://127.0.0.1:8000/api/drives/config | python -m json.tool
+```
+
 Check dashboard:
 
 ```bash
@@ -1620,14 +1612,14 @@ Potential future improvements include:
 * Alerting
 * Telegram notifications
 * Email notifications
-* Configurable monitored services
-* Configurable monitored drives
+* ~~Configurable monitored services~~ (done)
+* ~~Configurable monitored drives~~ (done)
 * Docker container monitoring
 * Disk-space alerts
 * Temperature alerts
 * SMART failure alerts
 * Systemd failure alerts
-* Mobile-responsive improvements
+* ~~Mobile-responsive improvements~~ (done)
 * REST API documentation
 * Automated tests
 * Docker deployment
@@ -1723,9 +1715,14 @@ Current functionality includes:
 * SMART monitoring
 * SMART self-test reporting
 * Network monitoring
-* systemd service monitoring
+* systemd service monitoring (curated + show-all toggle)
+* Configurable service list via JSON
+* Auto-detected drive monitoring with serial-based tracking
+* Add/remove drives from dashboard UI
 * Arduino desk-display monitoring
 * Automatic dashboard refresh
+* Dark/light theme toggle
+* Mobile-responsive design
 * systemd deployment
 
 ---
