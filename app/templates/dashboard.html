@@ -837,9 +837,9 @@
             <button
                 class="show-all-toggle"
                 id="drives-discover-toggle"
-                onclick="discoverDrives()"
+                onclick="toggleDrivesView()"
             >
-                <span>Add Drive</span>
+                <span id="drives-toggle-label">Add Drive</span>
             </button>
         </div>
 
@@ -1352,6 +1352,7 @@
      */
 
     let driveConfig = {};
+    let drivesDiscoveryMode = false;
 
     async function loadDriveConfig() {
         try {
@@ -1361,6 +1362,23 @@
             }
         } catch (error) {
             console.error("Failed to load drive config:", error);
+        }
+    }
+
+    function toggleDrivesView() {
+        drivesDiscoveryMode = !drivesDiscoveryMode;
+
+        const label = document.getElementById("drives-toggle-label");
+        const btn = document.getElementById("drives-discover-toggle");
+
+        if (drivesDiscoveryMode) {
+            label.textContent = "Back to Drives";
+            btn.classList.add("active");
+            discoverDrives();
+        } else {
+            label.textContent = "Add Drive";
+            btn.classList.remove("active");
+            updateDrivesFromConfig();
         }
     }
 
@@ -1442,8 +1460,10 @@
             );
 
             await loadDriveConfig();
+            drivesDiscoveryMode = false;
+            document.getElementById("drives-toggle-label").textContent = "Add Drive";
+            document.getElementById("drives-discover-toggle").classList.remove("active");
             updateDrivesFromConfig();
-            discoverDrives();
         } catch (error) {
             console.error("Failed to add drive:", error);
         }
@@ -1457,8 +1477,10 @@
             );
 
             await loadDriveConfig();
+            drivesDiscoveryMode = false;
+            document.getElementById("drives-toggle-label").textContent = "Add Drive";
+            document.getElementById("drives-discover-toggle").classList.remove("active");
             updateDrivesFromConfig();
-            discoverDrives();
         } catch (error) {
             console.error("Failed to remove drive:", error);
         }
