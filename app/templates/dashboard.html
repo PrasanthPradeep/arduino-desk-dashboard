@@ -646,8 +646,14 @@
                 gap: 12px;
             }
 
-            .refresh-interval {
-                display: none;
+            .title {
+                grid-column: 1;
+                text-align: center;
+            }
+
+            .header-right {
+                grid-row: 1;
+                grid-column: 2;
             }
 
             .phase3-grid {
@@ -666,7 +672,8 @@
             }
 
             .show-all-toggle {
-                width: 100%;
+                width: fit-content;
+                margin-left: auto;
                 text-align: center;
                 padding: 10px 12px;
                 font-size: 13px;
