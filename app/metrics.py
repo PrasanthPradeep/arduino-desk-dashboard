@@ -61,7 +61,9 @@ def load_drives_config():
     try:
         if DRIVES_CONFIG_PATH.exists():
             with open(DRIVES_CONFIG_PATH, "r") as f:
-                return json.load(f)
+                config = json.load(f)
+                if config.get("drives"):
+                    return config
     except Exception:
         pass
 
