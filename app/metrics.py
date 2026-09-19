@@ -84,9 +84,8 @@ def get_lsblk_info():
                 "lsblk",
                 "-d",
                 "-o",
-                "NAME,SERIAL,SIZE,MODEL",
+                "NAME,SERIAL,SIZE,MODEL,TRAN",
                 "--json",
-                "--nofollow",
             ],
             capture_output=True,
             text=True,
@@ -99,9 +98,16 @@ def get_lsblk_info():
 
             for dev in data.get("blockdevices", []):
                 name = dev.get("name", "")
-                serial = dev.get("serial", "") or ""
+                serial = dev.get("serial", None) or ""
                 size = dev.get("size", "") or ""
                 model = dev.get("model", "") or ""
+                tran = dev.get("tran", None) or ""
+
+                if name.startswith("loop"):
+                    continue
+
+                if tran == "loop":
+                    continue
 
                 devices[name] = {
                     "serial": serial.strip(),
@@ -117,13 +123,16 @@ def get_lsblk_info():
     return {}
 
 
-def resolve_drive_device(serial):
-    """Resolve a serial number to current /dev/ name."""
+def resolve_drive_device(key):
+    """Resolve a serial number or device name to /dev/ path."""
     devices = get_lsblk_info()
 
     for name, info in devices.items():
-        if info["serial"] == serial:
+        if info["serial"] and info["serial"] == key:
             return f"/dev/{name}"
+
+    if key in devices:
+        return f"/dev/{key}"
 
     return None
 
@@ -134,13 +143,14 @@ def get_all_block_devices():
 
     result = {}
     for name, info in devices.items():
-        if info["serial"]:
-            result[info["serial"]] = {
-                "device": f"/dev/{name}",
-                "name": name,
-                "size": info["size"],
-                "model": info["model"],
-            }
+        key = info["serial"] if info["serial"] else name
+        result[key] = {
+            "device": f"/dev/{name}",
+            "name": name,
+            "size": info["size"],
+            "model": info["model"],
+            "has_serial": bool(info["serial"]),
+        }
 
     return result
 

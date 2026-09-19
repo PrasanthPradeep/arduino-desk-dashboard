@@ -1377,11 +1377,15 @@
 
             let html = "";
 
-            for (const [serial, info] of Object.entries(discovered)) {
-                const isConfigured = serial in configured;
+            for (const [key, info] of Object.entries(discovered)) {
+                const isConfigured = key in configured;
                 const displayName = isConfigured
-                    ? configured[serial].display_name
+                    ? configured[key].display_name
                     : info.model || info.name;
+
+                const idLabel = info.has_serial
+                    ? `Serial: ${key}`
+                    : `Device: ${info.name}`;
 
                 html += `
                     <div class="card drive">
@@ -1393,14 +1397,14 @@
                                     Capacity: <strong>${info.size || "--"}</strong>
                                 </div>
                                 <div class="drive-capacity">
-                                    Serial: <strong>${serial}</strong>
+                                    ${idLabel}
                                 </div>
                             </div>
                             <button
                                 class="service-btn ${isConfigured ? "curated" : "add"}"
                                 onclick="${isConfigured
-                                    ? `removeDrive('${serial}')`
-                                    : `addDrive('${serial}', '${(info.model || info.name).replace(/'/g, "\\'")}')`}"
+                                    ? `removeDrive('${key}')`
+                                    : `addDrive('${key}', '${(info.model || info.name).replace(/'/g, "\\'")}')`}"
                                 title="${isConfigured ? "Remove drive" : "Add drive"}"
                             >${isConfigured ? "✓" : "+"}</button>
                         </div>
