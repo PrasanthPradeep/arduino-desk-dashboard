@@ -6,6 +6,17 @@
 
     <title>Homeserver Dashboard</title>
 
+    <meta name="description" content="A lightweight, self-hosted web dashboard for monitoring and managing a Linux home server.">
+    <meta name="theme-color" content="#0b0f14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dashboard">
+    <meta name="application-name" content="Homeserver Dashboard">
+
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/static/icons/icon-192.svg">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.svg">
+
     <style>
         * {
             box-sizing: border-box;
@@ -2155,6 +2166,20 @@
         5000
     );
 
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/static/sw.js')
+                .then((registration) => {
+                    console.log('ServiceWorker registered:', registration.scope);
+                })
+                .catch((error) => {
+                    console.error('ServiceWorker registration failed:', error);
+                });
+        });
+    }
 </script>
 
 </body>
