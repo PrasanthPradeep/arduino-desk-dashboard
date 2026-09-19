@@ -832,365 +832,25 @@
 
     <div class="section">
 
-        <h2>Storage Drives</h2>
+        <div class="section-header">
+            <h2>Storage Drives</h2>
+            <button
+                class="show-all-toggle"
+                id="drives-discover-toggle"
+                onclick="discoverDrives()"
+            >
+                <span>Add Drive</span>
+            </button>
+        </div>
 
-        <div class="drive-grid">
+        <div class="drive-grid" id="drives-grid">
 
-
-            <!-- =================================================
-                 SDA
-                 ================================================= -->
-
-            <div class="card drive" id="drive-sda">
-
+            <div class="card drive">
                 <div class="drive-header">
-
                     <div>
-
-                        <div class="drive-name">
-                            Storage Drive
-                        </div>
-
-                        <div class="drive-model" id="sda-model">
-                            Loading...
-                        </div>
-
-                        <div class="drive-capacity">
-                            Physical capacity:
-                            <strong id="sda-capacity">--</strong>
-                        </div>
-
+                        <div class="drive-name">Loading drives...</div>
                     </div>
-
-                    <span
-                        class="badge badge-unknown"
-                        id="sda-badge"
-                    >
-                        UNKNOWN
-                    </span>
-
                 </div>
-
-
-                <!-- SDA FILESYSTEM STORAGE -->
-
-                <div class="drive-storage">
-
-                    <div class="drive-storage-header">
-
-                        <span>
-                            Filesystem Storage
-                        </span>
-
-                        <strong id="sda-storage-usage">
-                            --
-                        </strong>
-
-                    </div>
-
-                    <div class="progress">
-                        <div
-                            class="progress-bar"
-                            id="sda-storage-bar"
-                        ></div>
-                    </div>
-
-                    <div class="drive-storage-details">
-
-                        <span>
-                            Used:
-                            <strong id="sda-storage-used">
-                                --
-                            </strong>
-                        </span>
-
-                        <span>
-                            Free:
-                            <strong id="sda-storage-free">
-                                --
-                            </strong>
-                        </span>
-
-                        <span>
-                            Total:
-                            <strong id="sda-storage-total">
-                                --
-                            </strong>
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <!-- SDA SMART STATS -->
-
-                <div class="drive-stats">
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            Temperature
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="sda-temp">--</span>
-                            °C
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            Pending
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="sda-pending">--</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            Reallocated
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="sda-reallocated">--</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            Uncorrectable
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="sda-uncorrectable">--</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            CRC Errors
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="sda-crc">--</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            Self-Test
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="sda-selftest">--</span>
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="reasons" id="sda-reasons">
-                    SMART assessment loading...
-                </div>
-
-            </div>
-
-
-
-            <!-- =================================================
-                 SDB
-                 ================================================= -->
-
-            <div class="card drive" id="drive-sdb">
-
-                <div class="drive-header">
-
-                    <div>
-
-                        <div class="drive-name">
-                            System Drive
-                        </div>
-
-                        <div class="drive-model" id="sdb-model">
-                            Loading...
-                        </div>
-
-                        <div class="drive-capacity">
-                            Physical capacity:
-                            <strong id="sdb-capacity">--</strong>
-                        </div>
-
-                    </div>
-
-                    <span
-                        class="badge badge-unknown"
-                        id="sdb-badge"
-                    >
-                        UNKNOWN
-                    </span>
-
-                </div>
-
-
-                <!-- SDB FILESYSTEM STORAGE -->
-
-                <div class="drive-storage">
-
-                    <div class="drive-storage-header">
-
-                        <span>
-                            Filesystem Storage
-                        </span>
-
-                        <strong id="sdb-storage-usage">
-                            --
-                        </strong>
-
-                    </div>
-
-                    <div class="progress">
-                        <div
-                            class="progress-bar"
-                            id="sdb-storage-bar"
-                        ></div>
-                    </div>
-
-                    <div class="drive-storage-details">
-
-                        <span>
-                            Used:
-                            <strong id="sdb-storage-used">
-                                --
-                            </strong>
-                        </span>
-
-                        <span>
-                            Free:
-                            <strong id="sdb-storage-free">
-                                --
-                            </strong>
-                        </span>
-
-                        <span>
-                            Total:
-                            <strong id="sdb-storage-total">
-                                --
-                            </strong>
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <!-- SDB SMART STATS -->
-
-                <div class="drive-stats">
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            Temperature
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="sdb-temp">--</span>
-                            °C
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            Pending
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="sdb-pending">--</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            Reallocated
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="sdb-reallocated">--</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            Uncorrectable
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="sdb-uncorrectable">--</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            CRC Errors
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="sdb-crc">--</span>
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            Self-Test
-                        </div>
-
-                        <div class="stat-value">
-                            <span id="sdb-selftest">--</span>
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="reasons" id="sdb-reasons">
-                    SMART assessment loading...
-                </div>
-
             </div>
 
         </div>
@@ -1690,6 +1350,209 @@
      * DRIVE
      * ============================================================
      */
+
+    let driveConfig = {};
+
+    async function loadDriveConfig() {
+        try {
+            const response = await fetch("/api/drives/config");
+            if (response.ok) {
+                driveConfig = await response.json();
+            }
+        } catch (error) {
+            console.error("Failed to load drive config:", error);
+        }
+    }
+
+    async function discoverDrives() {
+        try {
+            const [configRes, discoverRes] = await Promise.all([
+                fetch("/api/drives/config"),
+                fetch("/api/drives/discover"),
+            ]);
+
+            const config = await configRes.json();
+            const discovered = await discoverRes.json();
+            const configured = config.drives || {};
+
+            let html = "";
+
+            for (const [serial, info] of Object.entries(discovered)) {
+                const isConfigured = serial in configured;
+                const displayName = isConfigured
+                    ? configured[serial].display_name
+                    : info.model || info.name;
+
+                html += `
+                    <div class="card drive">
+                        <div class="drive-header">
+                            <div>
+                                <div class="drive-name">${displayName}</div>
+                                <div class="drive-model">${info.model || info.name}</div>
+                                <div class="drive-capacity">
+                                    Capacity: <strong>${info.size || "--"}</strong>
+                                </div>
+                                <div class="drive-capacity">
+                                    Serial: <strong>${serial}</strong>
+                                </div>
+                            </div>
+                            <button
+                                class="service-btn ${isConfigured ? "curated" : "add"}"
+                                onclick="${isConfigured
+                                    ? `removeDrive('${serial}')`
+                                    : `addDrive('${serial}', '${(info.model || info.name).replace(/'/g, "\\'")}')`}"
+                                title="${isConfigured ? "Remove drive" : "Add drive"}"
+                            >${isConfigured ? "✓" : "+"}</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (!html) {
+                html = `
+                    <div class="card drive">
+                        <div class="drive-header">
+                            <div>
+                                <div class="drive-name">No drives found</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById("drives-grid").innerHTML = html;
+
+        } catch (error) {
+            console.error("Failed to discover drives:", error);
+        }
+    }
+
+    async function addDrive(serial, displayName) {
+        try {
+            const mount = prompt("Mount point (e.g. / or /srv/storage):");
+            if (!mount) return;
+
+            await fetch(
+                `/api/drives/config/add?serial=${encodeURIComponent(serial)}&display_name=${encodeURIComponent(displayName)}&mount=${encodeURIComponent(mount)}`,
+                { method: "POST" }
+            );
+
+            await loadDriveConfig();
+            updateDrivesFromConfig();
+            discoverDrives();
+        } catch (error) {
+            console.error("Failed to add drive:", error);
+        }
+    }
+
+    async function removeDrive(serial) {
+        try {
+            await fetch(
+                `/api/drives/config/remove?serial=${encodeURIComponent(serial)}`,
+                { method: "POST" }
+            );
+
+            await loadDriveConfig();
+            updateDrivesFromConfig();
+            discoverDrives();
+        } catch (error) {
+            console.error("Failed to remove drive:", error);
+        }
+    }
+
+    function createDriveCard(serial, displayName) {
+        const card = document.createElement("div");
+        card.className = "card drive";
+        card.id = "drive-" + serial;
+
+        card.innerHTML = `
+            <div class="drive-header">
+                <div>
+                    <div class="drive-name">${displayName}</div>
+                    <div class="drive-model" id="${serial}-model">Loading...</div>
+                    <div class="drive-capacity">
+                        Physical capacity:
+                        <strong id="${serial}-capacity">--</strong>
+                    </div>
+                </div>
+                <span class="badge badge-unknown" id="${serial}-badge">UNKNOWN</span>
+            </div>
+
+            <div class="drive-storage">
+                <div class="drive-storage-header">
+                    <span>Filesystem Storage</span>
+                    <strong id="${serial}-storage-usage">--</strong>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" id="${serial}-storage-bar"></div>
+                </div>
+                <div class="drive-storage-details">
+                    <span>Used: <strong id="${serial}-storage-used">--</strong></span>
+                    <span>Free: <strong id="${serial}-storage-free">--</strong></span>
+                    <span>Total: <strong id="${serial}-storage-total">--</strong></span>
+                </div>
+            </div>
+
+            <div class="drive-stats">
+                <div class="stat">
+                    <div class="stat-label">Temperature</div>
+                    <div class="stat-value"><span id="${serial}-temp">--</span> °C</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Pending</div>
+                    <div class="stat-value"><span id="${serial}-pending">--</span></div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Reallocated</div>
+                    <div class="stat-value"><span id="${serial}-reallocated">--</span></div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Uncorrectable</div>
+                    <div class="stat-value"><span id="${serial}-uncorrectable">--</span></div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">CRC Errors</div>
+                    <div class="stat-value"><span id="${serial}-crc">--</span></div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Self-Test</div>
+                    <div class="stat-value"><span id="${serial}-selftest">--</span></div>
+                </div>
+            </div>
+
+            <div class="reasons" id="${serial}-reasons">SMART assessment loading...</div>
+        `;
+
+        return card;
+    }
+
+    function updateDrivesFromConfig() {
+        const grid = document.getElementById("drives-grid");
+        if (!grid) return;
+
+        grid.innerHTML = "";
+
+        const drives = driveConfig.drives || {};
+
+        if (Object.keys(drives).length === 0) {
+            grid.innerHTML = `
+                <div class="card drive">
+                    <div class="drive-header">
+                        <div>
+                            <div class="drive-name">No drives configured</div>
+                            <div class="drive-model">Click "Add Drive" to discover drives</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        for (const [serial, drive] of Object.entries(drives)) {
+            const card = createDriveCard(serial, drive.display_name || serial);
+            grid.appendChild(card);
+        }
+    }
 
     function updateDrive(
         driveName,
@@ -2484,15 +2347,14 @@
                 data.smart.drives
             ) {
 
-                updateDrive(
-                    "sda",
-                    data.smart.drives.sda
-                );
-
-                updateDrive(
-                    "sdb",
-                    data.smart.drives.sdb
-                );
+                for (
+                    const [serial, drive]
+                    of Object.entries(data.smart.drives)
+                ) {
+                    if (document.getElementById("drive-" + serial)) {
+                        updateDrive(serial, drive);
+                    }
+                }
             }
 
 
@@ -2548,6 +2410,7 @@
     updatePhase3();
     loadShowAllState();
     loadCuratedServices();
+    loadDriveConfig().then(() => updateDrivesFromConfig());
 
 
     /*

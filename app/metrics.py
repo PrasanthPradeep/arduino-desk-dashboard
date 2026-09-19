@@ -15,18 +15,7 @@ import psutil
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SERVICES_CONFIG_PATH = BASE_DIR / "services.json"
-
-STORAGE_PATH = "/srv/storage"
-
-HDD_DEVICES = {
-    "sda": "/dev/sda",
-    "sdb": "/dev/sdb",
-}
-
-DRIVE_MOUNTS = {
-    "sda": "/srv/storage",
-    "sdb": "/",
-}
+DRIVES_CONFIG_PATH = BASE_DIR / "drives.json"
 
 SMART_WRAPPER = "/usr/local/sbin/arduino-desk-smartctl"
 
@@ -61,6 +50,99 @@ def save_services_config(config):
     """Save services configuration to JSON file."""
     with open(SERVICES_CONFIG_PATH, "w") as f:
         json.dump(config, f, indent=4)
+
+
+# ============================================================
+# DRIVES CONFIG
+# ============================================================
+
+def load_drives_config():
+    """Load drives configuration from JSON file."""
+    try:
+        if DRIVES_CONFIG_PATH.exists():
+            with open(DRIVES_CONFIG_PATH, "r") as f:
+                return json.load(f)
+    except Exception:
+        pass
+
+    return {
+        "drives": {},
+    }
+
+
+def save_drives_config(config):
+    """Save drives configuration to JSON file."""
+    with open(DRIVES_CONFIG_PATH, "w") as f:
+        json.dump(config, f, indent=4)
+
+
+def get_lsblk_info():
+    """Get drive info from lsblk (name -> serial mapping)."""
+    try:
+        result = subprocess.run(
+            [
+                "lsblk",
+                "-d",
+                "-o",
+                "NAME,SERIAL,SIZE,MODEL",
+                "--json",
+                "--nofollow",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+
+        if result.returncode == 0:
+            data = json.loads(result.stdout)
+            devices = {}
+
+            for dev in data.get("blockdevices", []):
+                name = dev.get("name", "")
+                serial = dev.get("serial", "") or ""
+                size = dev.get("size", "") or ""
+                model = dev.get("model", "") or ""
+
+                devices[name] = {
+                    "serial": serial.strip(),
+                    "size": size.strip(),
+                    "model": model.strip(),
+                }
+
+            return devices
+
+    except Exception:
+        pass
+
+    return {}
+
+
+def resolve_drive_device(serial):
+    """Resolve a serial number to current /dev/ name."""
+    devices = get_lsblk_info()
+
+    for name, info in devices.items():
+        if info["serial"] == serial:
+            return f"/dev/{name}"
+
+    return None
+
+
+def get_all_block_devices():
+    """Get all block devices for discovery."""
+    devices = get_lsblk_info()
+
+    result = {}
+    for name, info in devices.items():
+        if info["serial"]:
+            result[info["serial"]] = {
+                "device": f"/dev/{name}",
+                "name": name,
+                "size": info["size"],
+                "model": info["model"],
+            }
+
+    return result
 
 
 def get_all_active_services():
@@ -116,19 +198,21 @@ def get_system_info():
     memory = psutil.virtual_memory()
 
     # --------------------------------------------------------
-    # Aggregate storage across the server's actual filesystems.
-    # /       -> system drive
-    # /srv/storage -> storage drive
+    # Aggregate storage across configured drives.
     # --------------------------------------------------------
 
+    config = load_drives_config()
+    drives = config.get("drives", {})
     storage_filesystems = []
 
-    for mountpoint in DRIVE_MOUNTS.values():
-        try:
-            usage = psutil.disk_usage(mountpoint)
-            storage_filesystems.append(usage)
-        except Exception:
-            pass
+    for serial, drive_config in drives.items():
+        mountpoint = drive_config.get("mount")
+        if mountpoint:
+            try:
+                usage = psutil.disk_usage(mountpoint)
+                storage_filesystems.append(usage)
+            except Exception:
+                pass
 
     storage_total = sum(
         usage.total
@@ -656,41 +740,38 @@ def calculate_drive_assessment(
 # HDD SMART DATA
 # ============================================================
 
-def parse_smart(device):
+def parse_smart(device, mountpoint=None):
     device_info = parse_device_info(device)
 
     # Filesystem usage for this physical drive.
     filesystem = None
 
-    for name, mountpoint in DRIVE_MOUNTS.items():
-        if HDD_DEVICES.get(name) == device:
-            try:
-                usage = psutil.disk_usage(mountpoint)
+    if mountpoint:
+        try:
+            usage = psutil.disk_usage(mountpoint)
 
-                filesystem = {
-                    "mountpoint": mountpoint,
-                    "total_gb": round(
-                        usage.total / (1024 ** 3),
-                        2,
-                    ),
-                    "used_gb": round(
-                        usage.used / (1024 ** 3),
-                        2,
-                    ),
-                    "free_gb": round(
-                        usage.free / (1024 ** 3),
-                        2,
-                    ),
-                    "usage_percent": round(
-                        usage.percent,
-                        1,
-                    ),
-                }
+            filesystem = {
+                "mountpoint": mountpoint,
+                "total_gb": round(
+                    usage.total / (1024 ** 3),
+                    2,
+                ),
+                "used_gb": round(
+                    usage.used / (1024 ** 3),
+                    2,
+                ),
+                "free_gb": round(
+                    usage.free / (1024 ** 3),
+                    2,
+                ),
+                "usage_percent": round(
+                    usage.percent,
+                    1,
+                ),
+            }
 
-            except Exception:
-                pass
-
-            break
+        except Exception:
+            pass
 
     health_output = run_smart(["-H"], device)
     attribute_output = run_smart(["-A"], device)
@@ -796,8 +877,25 @@ def update_smart_cache(force=False):
     ):
         return
 
-    for name, device in HDD_DEVICES.items():
-        _smart_cache[name] = parse_smart(device)
+    config = load_drives_config()
+    drives = config.get("drives", {})
+
+    for serial, drive_config in drives.items():
+        device = resolve_drive_device(serial)
+        mountpoint = drive_config.get("mount")
+
+        if device:
+            _smart_cache[serial] = parse_smart(device, mountpoint)
+        else:
+            _smart_cache[serial] = {
+                "connected": False,
+                "display_name": drive_config.get("display_name", serial),
+                "assessment": {
+                    "level": "DISCONNECTED",
+                    "label": "Disconnected",
+                    "reasons": ["Drive not found."],
+                },
+            }
 
     _smart_last_update = now
 

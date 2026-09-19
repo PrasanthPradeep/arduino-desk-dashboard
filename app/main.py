@@ -8,8 +8,11 @@ from app.metrics import (
     get_dashboard_data,
     get_services_info,
     get_system_details,
+    get_all_block_devices,
     load_services_config,
     save_services_config,
+    load_drives_config,
+    save_drives_config,
 )
 
 
@@ -105,4 +108,37 @@ def remove_service(service_name: str):
     config = load_services_config()
     config["services"].pop(service_name, None)
     save_services_config(config)
+    return config
+
+
+# ============================================================
+# DRIVES CONFIG ENDPOINTS
+# ============================================================
+
+@app.get("/api/drives/config")
+def drives_config():
+    return load_drives_config()
+
+
+@app.get("/api/drives/discover")
+def discover_drives():
+    return get_all_block_devices()
+
+
+@app.post("/api/drives/config/add")
+def add_drive(serial: str, display_name: str, mount: str):
+    config = load_drives_config()
+    config["drives"][serial] = {
+        "display_name": display_name,
+        "mount": mount,
+    }
+    save_drives_config(config)
+    return config
+
+
+@app.post("/api/drives/config/remove")
+def remove_drive(serial: str):
+    config = load_drives_config()
+    config["drives"].pop(serial, None)
+    save_drives_config(config)
     return config
