@@ -943,7 +943,18 @@ def update_smart_cache(force=False):
         mountpoint = drive_config.get("mount")
 
         if device:
-            _smart_cache[serial] = parse_smart(device, mountpoint)
+            try:
+                _smart_cache[serial] = parse_smart(device, mountpoint)
+            except Exception:
+                _smart_cache[serial] = {
+                    "display_name": drive_config.get("display_name", serial),
+                    "health": "UNKNOWN",
+                    "assessment": {
+                        "level": "UNKNOWN",
+                        "label": "Unknown",
+                        "reasons": ["Error reading SMART data."],
+                    },
+                }
         else:
             _smart_cache[serial] = {
                 "connected": False,

@@ -1631,6 +1631,24 @@
     ) {
 
         if (!drive) {
+            setText(driveName + "-model", "SMART data unavailable");
+            setText(driveName + "-capacity", "--");
+            setBadge(driveName + "-badge", {
+                level: "UNKNOWN",
+                label: "Unknown",
+                reasons: ["SMART data not available."],
+            });
+            setText(driveName + "-storage-usage", "--");
+            setProgress(driveName + "-storage-bar", 0);
+            setText(driveName + "-storage-used", "--");
+            setText(driveName + "-storage-free", "--");
+            setText(driveName + "-storage-total", "--");
+            setText(driveName + "-temp", "--");
+            setText(driveName + "-pending", "--");
+            setText(driveName + "-reallocated", "--");
+            setText(driveName + "-uncorrectable", "--");
+            setText(driveName + "-crc", "--");
+            setText(driveName + "-selftest", "--");
             return;
         }
 
