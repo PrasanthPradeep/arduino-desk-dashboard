@@ -1,18 +1,20 @@
 :root {
-    --bg: #0b0f14;
-    --surface: #111720;
-    --surface-2: #161d27;
-    --border: #26313e;
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-2: #f5f5f5;
+    --border: #e5e5e5;
 
-    --text: #f1f5f9;
-    --muted: #8d9aaa;
+    --text: #171717;
+    --text-secondary: #525252;
+    --muted: #a3a3a3;
 
-    --blue: #4da3ff;
-    --green: #31d17c;
-    --yellow: #f5c451;
-    --red: #ff5d68;
+    --black: #171717;
+    --green: #16a34a;
+    --yellow: #ca8a04;
+    --red: #dc2626;
+    --blue: #2563eb;
 
-    --radius: 18px;
+    --radius: 12px;
 }
 
 
@@ -24,13 +26,7 @@
 body {
     margin: 0;
 
-    background:
-        radial-gradient(
-            circle at top right,
-            rgba(77, 163, 255, 0.08),
-            transparent 30%
-        ),
-        var(--bg);
+    background: var(--bg);
 
     color: var(--text);
 
@@ -42,6 +38,9 @@ body {
         BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 
@@ -53,9 +52,9 @@ body {
 /* HEADER */
 
 .topbar {
-    min-height: 86px;
+    min-height: 64px;
 
-    padding: 20px 32px;
+    padding: 16px 32px;
 
     display: flex;
     align-items: center;
@@ -63,9 +62,7 @@ body {
 
     border-bottom: 1px solid var(--border);
 
-    background: rgba(11, 15, 20, 0.92);
-
-    backdrop-filter: blur(12px);
+    background: var(--surface);
 
     position: sticky;
     top: 0;
@@ -74,14 +71,14 @@ body {
 
 
 .brand {
-    font-size: 22px;
-    font-weight: 750;
-    letter-spacing: -0.5px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
 }
 
 
 .subtitle {
-    margin-top: 3px;
+    margin-top: 2px;
 
     color: var(--muted);
 
@@ -92,17 +89,17 @@ body {
 .header-right {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 16px;
 }
 
 
 .status-pill {
-    padding: 7px 13px;
+    padding: 5px 12px;
 
     border-radius: 999px;
 
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 500;
 }
 
 
@@ -113,54 +110,54 @@ body {
 
 
 .status-good {
-    background: rgba(49, 209, 124, 0.12);
+    background: #dcfce7;
     color: var(--green);
 }
 
 
 .status-warning {
-    background: rgba(245, 196, 81, 0.12);
+    background: #fef9c3;
     color: var(--yellow);
 }
 
 
 .status-danger {
-    background: rgba(255, 93, 104, 0.12);
+    background: #fee2e2;
     color: var(--red);
 }
 
 
 .last-update {
     color: var(--muted);
-    font-size: 12px;
+    font-size: 13px;
 }
 
 
 /* DASHBOARD */
 
 .dashboard {
-    max-width: 1250px;
+    max-width: 1200px;
 
     margin: 0 auto;
 
-    padding: 34px 24px 60px;
+    padding: 32px 24px 60px;
 }
 
 
 .section {
-    margin-bottom: 38px;
+    margin-bottom: 32px;
 }
 
 
 .section-title {
-    margin-bottom: 15px;
+    margin-bottom: 16px;
 
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 600;
 
-    color: #cbd5e1;
+    color: var(--text);
 
-    letter-spacing: 0.2px;
+    letter-spacing: 0;
 }
 
 
@@ -173,7 +170,7 @@ body {
 
 .section-info {
     color: var(--muted);
-    font-size: 12px;
+    font-size: 13px;
 }
 
 
@@ -185,7 +182,7 @@ body {
     grid-template-columns:
         repeat(4, minmax(0, 1fr));
 
-    gap: 14px;
+    gap: 16px;
 }
 
 
@@ -196,71 +193,58 @@ body {
 
 
 .card {
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,0.025),
-            rgba(255,255,255,0.01)
-        ),
-        var(--surface);
+    background: var(--surface);
 
     border: 1px solid var(--border);
 
     border-radius: var(--radius);
-
-    box-shadow:
-        0 8px 30px rgba(0,0,0,0.12);
 }
 
 
 .metric-card {
-    padding: 21px;
+    padding: 20px;
 }
 
 
 .card-label {
     color: var(--muted);
 
-    font-size: 12px;
+    font-size: 13px;
 
-    font-weight: 600;
-
-    text-transform: uppercase;
-
-    letter-spacing: 0.6px;
+    font-weight: 500;
 }
 
 
 .metric-value {
-    margin-top: 10px;
+    margin-top: 8px;
 
-    font-size: 30px;
+    font-size: 28px;
 
-    font-weight: 750;
+    font-weight: 600;
 
-    letter-spacing: -1px;
+    letter-spacing: -0.5px;
 }
 
 
 .metric-sub {
-    margin-top: 7px;
+    margin-top: 4px;
 
-    color: var(--muted);
+    color: var(--text-secondary);
 
-    font-size: 12px;
+    font-size: 13px;
 }
 
 
 /* PROGRESS */
 
 .progress {
-    height: 5px;
+    height: 4px;
 
     margin-top: 16px;
 
     overflow: hidden;
 
-    background: #202934;
+    background: var(--surface-2);
 
     border-radius: 99px;
 }
@@ -271,7 +255,7 @@ body {
 
     width: 0%;
 
-    background: var(--blue);
+    background: var(--black);
 
     border-radius: inherit;
 
@@ -282,29 +266,29 @@ body {
 /* NETWORK */
 
 .network-card {
-    padding: 22px;
+    padding: 20px;
 
     display: flex;
 
     align-items: center;
 
-    gap: 17px;
+    gap: 16px;
 }
 
 
 .network-icon {
-    width: 43px;
-    height: 43px;
+    width: 40px;
+    height: 40px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border-radius: 13px;
+    border-radius: 10px;
 
     background: var(--surface-2);
 
-    color: var(--muted);
+    color: var(--text-secondary);
 
     font-size: 16px;
 }
@@ -316,11 +300,11 @@ body {
 
 
 .large-status {
-    margin-top: 5px;
+    margin-top: 4px;
 
-    font-size: 20px;
+    font-size: 18px;
 
-    font-weight: 700;
+    font-weight: 600;
 }
 
 
@@ -332,12 +316,12 @@ body {
     grid-template-columns:
         repeat(2, minmax(0, 1fr));
 
-    gap: 14px;
+    gap: 16px;
 }
 
 
 .drive-card {
-    padding: 22px;
+    padding: 20px;
 }
 
 
@@ -348,14 +332,14 @@ body {
 
     justify-content: space-between;
 
-    gap: 15px;
+    gap: 12px;
 }
 
 
 .drive-name {
-    font-size: 19px;
+    font-size: 16px;
 
-    font-weight: 750;
+    font-weight: 600;
 }
 
 
@@ -364,66 +348,66 @@ body {
 
     color: var(--muted);
 
-    font-size: 12px;
+    font-size: 13px;
 }
 
 
 .drive-badge {
-    padding: 5px 10px;
+    padding: 4px 10px;
 
     border-radius: 999px;
 
     font-size: 11px;
 
-    font-weight: 750;
+    font-weight: 500;
 }
 
 
 .badge-good {
     color: var(--green);
-    background: rgba(49,209,124,0.1);
+    background: #dcfce7;
 }
 
 
 .badge-warning {
     color: var(--yellow);
-    background: rgba(245,196,81,0.1);
+    background: #fef9c3;
 }
 
 
 .badge-danger {
     color: var(--red);
-    background: rgba(255,93,104,0.1);
+    background: #fee2e2;
 }
 
 
 .drive-temp {
-    margin-top: 25px;
+    margin-top: 20px;
 
     display: flex;
 
     align-items: baseline;
 
-    gap: 7px;
+    gap: 6px;
 }
 
 
 .drive-temp-value {
-    font-size: 30px;
+    font-size: 28px;
 
-    font-weight: 750;
+    font-weight: 600;
 }
 
 
 .drive-temp-label {
     color: var(--muted);
 
-    font-size: 12px;
+    font-size: 13px;
 }
 
 
 .drive-stats {
-    margin-top: 21px;
+    margin-top: 20px;
 
     display: grid;
 
@@ -435,9 +419,9 @@ body {
 
 
 .drive-stat {
-    padding: 11px;
+    padding: 12px;
 
-    border-radius: 11px;
+    border-radius: 8px;
 
     background: var(--surface-2);
 }
@@ -446,37 +430,33 @@ body {
 .drive-stat-label {
     color: var(--muted);
 
-    font-size: 10px;
+    font-size: 11px;
 
-    text-transform: uppercase;
-
-    letter-spacing: 0.4px;
+    font-weight: 500;
 }
 
 
 .drive-stat-value {
-    margin-top: 5px;
+    margin-top: 4px;
 
-    font-size: 16px;
+    font-size: 15px;
 
-    font-weight: 700;
+    font-weight: 600;
 }
 
 
 .drive-warning {
-    margin-top: 18px;
+    margin-top: 16px;
 
-    padding: 12px 13px;
+    padding: 12px;
 
-    border-radius: 11px;
+    border-radius: 8px;
 
-    background: rgba(255,93,104,0.07);
+    background: #fee2e2;
 
-    border: 1px solid rgba(255,93,104,0.2);
+    color: #991b1b;
 
-    color: #ff9ca3;
-
-    font-size: 12px;
+    font-size: 13px;
 
     line-height: 1.5;
 }
@@ -485,30 +465,30 @@ body {
 /* ARDUINO */
 
 .arduino-card {
-    padding: 22px;
+    padding: 20px;
 
     display: flex;
 
     align-items: center;
 
-    gap: 17px;
+    gap: 16px;
 }
 
 
 .arduino-status-icon {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
 
     display: flex;
 
     align-items: center;
     justify-content: center;
 
-    border-radius: 14px;
+    border-radius: 10px;
 
-    background: rgba(77,163,255,0.1);
+    background: var(--surface-2);
 
-    font-size: 21px;
+    font-size: 18px;
 }
 
 
@@ -525,15 +505,17 @@ body {
 .button {
     border: 0;
 
-    padding: 10px 15px;
+    padding: 8px 14px;
 
-    border-radius: 10px;
+    border-radius: 8px;
 
-    background: var(--blue);
+    background: var(--black);
 
     color: white;
 
-    font-weight: 700;
+    font-size: 13px;
+
+    font-weight: 500;
 
     cursor: pointer;
 }
@@ -547,11 +529,11 @@ body {
 
 
 .coming-soon {
-    margin-top: 6px;
+    margin-top: 4px;
 
     color: var(--muted);
 
-    font-size: 10px;
+    font-size: 11px;
 }
 
 
@@ -562,22 +544,123 @@ footer {
 
     justify-content: space-between;
 
-    color: #647181;
+    color: var(--muted);
 
-    font-size: 11px;
+    font-size: 12px;
 
-    padding-top: 15px;
+    padding-top: 16px;
+
+    border-top: 1px solid var(--border);
 }
 
 
 /* LOADING */
 
 .loading-card {
-    padding: 30px;
+    padding: 32px;
 
     color: var(--muted);
 
     grid-column: 1 / -1;
+}
+
+
+/* PHASE 3 - SYSTEM INFORMATION */
+
+.phase3-section {
+    margin-top: 32px;
+}
+
+.phase3-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.phase3-info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+}
+
+.phase3-info-label {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.phase3-info-value {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+.phase3-services-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.phase3-service-count {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.phase3-service-count strong {
+    color: var(--text);
+}
+
+.phase3-services-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.phase3-service-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.phase3-service-name {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.phase3-service-unit {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.phase3-service-status {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.phase3-service-status.active {
+    color: var(--green);
+}
+
+.phase3-service-status.inactive {
+    color: var(--red);
+}
+
+.phase3-service-status.loading {
+    color: var(--muted);
 }
 
 
@@ -596,11 +679,11 @@ footer {
 @media (max-width: 650px) {
 
     .topbar {
-        padding: 17px 18px;
+        padding: 14px 16px;
     }
 
     .header-right {
-        gap: 7px;
+        gap: 8px;
     }
 
     .last-update {
@@ -608,7 +691,7 @@ footer {
     }
 
     .dashboard {
-        padding: 25px 15px 45px;
+        padding: 20px 16px 40px;
     }
 
     .card-grid,
@@ -636,7 +719,15 @@ footer {
 
     footer {
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
+    }
+
+    .phase3-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .phase3-services-grid {
+        grid-template-columns: 1fr;
     }
 
 }
