@@ -79,7 +79,7 @@ def auto_detect_drives():
         key = info["serial"] if info["serial"] else name
         drives[key] = {
             "display_name": info["model"] or name,
-            "mount": "",
+            "mount": info["mountpoint"],
         }
 
     return {"drives": drives}
@@ -92,14 +92,13 @@ def save_drives_config(config):
 
 
 def get_lsblk_info():
-    """Get drive info from lsblk (name -> serial mapping)."""
+    """Get drive info from lsblk including partitions for mountpoints."""
     try:
         result = subprocess.run(
             [
                 "lsblk",
-                "-d",
                 "-o",
-                "NAME,SERIAL,SIZE,MODEL,TRAN",
+                "NAME,SIZE,SERIAL,MODEL,TRAN,MOUNTPOINT,FSTYPE",
                 "--json",
             ],
             capture_output=True,
@@ -117,6 +116,7 @@ def get_lsblk_info():
                 size = dev.get("size", "") or ""
                 model = dev.get("model", "") or ""
                 tran = dev.get("tran", None) or ""
+                mountpoint = dev.get("mountpoint", None) or ""
 
                 if name.startswith("loop"):
                     continue
@@ -124,10 +124,18 @@ def get_lsblk_info():
                 if tran == "loop":
                     continue
 
+                if not mountpoint:
+                    for part in dev.get("children", []):
+                        part_mount = part.get("mountpoint", None) or ""
+                        if part_mount:
+                            mountpoint = part_mount
+                            break
+
                 devices[name] = {
                     "serial": serial.strip(),
                     "size": size.strip(),
                     "model": model.strip(),
+                    "mountpoint": mountpoint,
                 }
 
             return devices

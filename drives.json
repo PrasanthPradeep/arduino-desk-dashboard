@@ -2,7 +2,7 @@
     "drives": {
         "sda": {
             "display_name": "VMware Virtual S",
-            "mount": ""
+            "mount": "/"
         }
     }
 }
