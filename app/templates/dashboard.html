@@ -679,6 +679,25 @@
                 font-size: 12px;
             }
 
+            .phase3-service-card.show-all {
+                grid-template-columns: minmax(0, 1fr) auto;
+                row-gap: 8px;
+            }
+
+            .phase3-service-card.show-all .phase3-service-status {
+                grid-column: 1;
+                grid-row: 2;
+                justify-self: start;
+                text-align: left;
+                white-space: normal;
+                overflow-wrap: anywhere;
+            }
+
+            .phase3-service-card.show-all .service-actions {
+                grid-column: 2;
+                grid-row: 2;
+            }
+
             .phase3-service-status {
                 font-size: 10px;
             }
