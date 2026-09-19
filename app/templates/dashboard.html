@@ -530,17 +530,25 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 14px;
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr auto;
             align-items: center;
-            justify-content: space-between;
             gap: 10px;
             transition: background 0.15s, border-color 0.15s;
+        }
+
+        .phase3-service-card.show-all {
+            grid-template-columns: 1fr auto auto;
         }
 
         .phase3-service-name {
             color: var(--text);
             font-size: 13px;
             font-weight: 500;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .phase3-service-status {
@@ -548,6 +556,8 @@
             font-weight: 500;
             text-transform: uppercase;
             white-space: nowrap;
+            text-align: right;
+            justify-self: end;
         }
 
         .phase3-service-status.active {
@@ -606,17 +616,6 @@
             border-color: var(--border);
             cursor: default;
             font-size: 11px;
-        }
-
-        .phase3-service-card {
-            min-width: 0;
-        }
-
-        .phase3-service-name {
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
         @media (max-width: 650px) {
@@ -2206,7 +2205,10 @@
                 document.createElement("div");
 
             card.className =
-                "phase3-service-card";
+                "phase3-service-card" +
+                (currentShowAll
+                    ? " show-all"
+                    : "");
 
             const nameContainer =
                 document.createElement("div");
@@ -2291,7 +2293,10 @@
 
             card.appendChild(nameContainer);
             card.appendChild(status);
-            card.appendChild(actions);
+
+            if (currentShowAll) {
+                card.appendChild(actions);
+            }
 
             grid.appendChild(card);
         }
