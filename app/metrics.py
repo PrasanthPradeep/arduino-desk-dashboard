@@ -98,7 +98,8 @@ def get_lsblk_info():
             [
                 "lsblk",
                 "-o",
-                "NAME,SIZE,SERIAL,MODEL,TRAN,MOUNTPOINT,FSTYPE",
+                "NAME,SIZE,SERIAL,MODEL,TRAN",
+                "-b",
                 "--json",
             ],
             capture_output=True,
@@ -106,17 +107,19 @@ def get_lsblk_info():
             timeout=5,
         )
 
+        mountpoints = get_mountpoints()
+
         if result.returncode == 0:
             data = json.loads(result.stdout)
             devices = {}
 
             for dev in data.get("blockdevices", []):
                 name = dev.get("name", "")
-                serial = dev.get("serial", None) or ""
-                size = dev.get("size", "") or ""
-                model = dev.get("model", "") or ""
-                tran = dev.get("tran", None) or ""
-                mountpoint = dev.get("mountpoint", None) or ""
+                serial = str(dev.get("serial", None) or "").strip()
+                size_raw = dev.get("size", "") or ""
+                size = str(size_raw).strip() if size_raw else ""
+                model = str(dev.get("model", None) or "").strip()
+                tran = str(dev.get("tran", None) or "").strip()
 
                 if name.startswith("loop"):
                     continue
@@ -124,17 +127,19 @@ def get_lsblk_info():
                 if tran == "loop":
                     continue
 
+                mountpoint = mountpoints.get(name, "")
+
                 if not mountpoint:
                     for part in dev.get("children", []):
-                        part_mount = part.get("mountpoint", None) or ""
-                        if part_mount:
-                            mountpoint = part_mount
+                        part_name = part.get("name", "")
+                        if part_name in mountpoints:
+                            mountpoint = mountpoints[part_name]
                             break
 
                 devices[name] = {
-                    "serial": serial.strip(),
-                    "size": size.strip(),
-                    "model": model.strip(),
+                    "serial": serial,
+                    "size": size,
+                    "model": model,
                     "mountpoint": mountpoint,
                 }
 
@@ -144,6 +149,24 @@ def get_lsblk_info():
         pass
 
     return {}
+
+
+def get_mountpoints():
+    """Get device -> mountpoint mapping from /proc/mounts."""
+    mounts = {}
+    try:
+        with open("/proc/mounts", "r") as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) >= 2:
+                    device = parts[0]
+                    mountpoint = parts[1]
+                    if device.startswith("/dev/"):
+                        dev_name = device.replace("/dev/", "")
+                        mounts[dev_name] = mountpoint
+    except Exception:
+        pass
+    return mounts
 
 
 def resolve_drive_device(key):
