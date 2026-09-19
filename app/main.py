@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent
 
 
 app = FastAPI(
-    title="Arduino Desk Dashboard",
+    title="Homeserver Dashboard",
     version="1.0.0",
 )
 

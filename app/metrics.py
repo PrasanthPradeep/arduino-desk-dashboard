@@ -183,7 +183,7 @@ def get_system_details():
 # ============================================================
 
 MONITORED_SERVICES = {
-    "arduino-desk-dashboard": "Arduino Desk Dashboard",
+    "homeserverDashboard": "Homeserver Dashboard",
     "arduino-desk": "Arduino Desk Display",
     "ssh": "SSH Server",
     "docker": "Docker",
