@@ -469,6 +469,39 @@
             word-break: break-word;
         }
 
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+        }
+
+        .show-all-toggle {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .show-all-toggle:hover {
+            background: var(--surface-2);
+        }
+
+        .show-all-toggle.active {
+            background: var(--text);
+            color: var(--surface);
+            border-color: var(--text);
+        }
+
         .phase3-services-summary {
             display: flex;
             align-items: center;
@@ -1179,7 +1212,16 @@
 
     <section class="phase3-section">
 
-        <h2>Services</h2>
+        <div class="section-header">
+            <h2>Services</h2>
+            <button
+                class="show-all-toggle"
+                id="show-all-toggle"
+                onclick="toggleShowAll()"
+            >
+                <span id="show-all-label">Show All</span>
+            </button>
+        </div>
 
         <div class="card">
 
@@ -1940,11 +1982,66 @@
      * ============================================================
      */
 
+    let currentShowAll = false;
+
+    async function toggleShowAll() {
+        try {
+            const response = await fetch(
+                "/api/services/config/toggle-show-all",
+                { method: "POST" }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to toggle");
+            }
+
+            const data = await response.json();
+            currentShowAll = data.show_all;
+
+            updateShowAllButton();
+            updatePhase3();
+
+        } catch (error) {
+            console.error("Toggle show-all failed:", error);
+        }
+    }
+
+    function updateShowAllButton() {
+        const button = document.getElementById("show-all-toggle");
+        const label = document.getElementById("show-all-label");
+
+        if (button && label) {
+            if (currentShowAll) {
+                button.classList.add("active");
+                label.textContent = "Show Curated";
+            } else {
+                button.classList.remove("active");
+                label.textContent = "Show All";
+            }
+        }
+    }
+
+    async function loadShowAllState() {
+        try {
+            const response = await fetch("/api/services/config");
+            if (response.ok) {
+                const config = await response.json();
+                currentShowAll = config.show_all || false;
+                updateShowAllButton();
+            }
+        } catch (error) {
+            console.error("Failed to load show-all state:", error);
+        }
+    }
+
     function updateServices(serviceData) {
 
         if (!serviceData) {
             return;
         }
+
+        currentShowAll = serviceData.show_all || false;
+        updateShowAllButton();
 
         setText(
             "services-active",
@@ -2207,6 +2304,7 @@
 
     updateDashboard();
     updatePhase3();
+    loadShowAllState();
 
 
     /*

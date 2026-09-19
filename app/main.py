@@ -8,6 +8,8 @@ from app.metrics import (
     get_dashboard_data,
     get_services_info,
     get_system_details,
+    load_services_config,
+    save_services_config,
 )
 
 
@@ -75,3 +77,32 @@ def system_info():
 @app.get("/api/services")
 def services():
     return get_services_info()
+
+
+@app.get("/api/services/config")
+def services_config():
+    return load_services_config()
+
+
+@app.post("/api/services/config/toggle-show-all")
+def toggle_show_all():
+    config = load_services_config()
+    config["show_all"] = not config.get("show_all", False)
+    save_services_config(config)
+    return {"show_all": config["show_all"]}
+
+
+@app.post("/api/services/config/add")
+def add_service(service_name: str, display_name: str):
+    config = load_services_config()
+    config["services"][service_name] = display_name
+    save_services_config(config)
+    return config
+
+
+@app.post("/api/services/config/remove")
+def remove_service(service_name: str):
+    config = load_services_config()
+    config["services"].pop(service_name, None)
+    save_services_config(config)
+    return config

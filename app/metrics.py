@@ -1,8 +1,10 @@
+import json
 import os
 import platform
 import re
 import subprocess
 import time
+from pathlib import Path
 
 import psutil
 
@@ -10,6 +12,9 @@ import psutil
 # ============================================================
 # CONFIGURATION
 # ============================================================
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+SERVICES_CONFIG_PATH = BASE_DIR / "services.json"
 
 STORAGE_PATH = "/srv/storage"
 
@@ -27,6 +32,68 @@ SMART_WRAPPER = "/usr/local/sbin/arduino-desk-smartctl"
 
 # SMART is intentionally not queried every dashboard refresh.
 SMART_INTERVAL = 1800  # 30 minutes
+
+
+# ============================================================
+# SERVICES CONFIG
+# ============================================================
+
+def load_services_config():
+    """Load services configuration from JSON file."""
+    try:
+        if SERVICES_CONFIG_PATH.exists():
+            with open(SERVICES_CONFIG_PATH, "r") as f:
+                return json.load(f)
+    except Exception:
+        pass
+
+    return {
+        "show_all": False,
+        "services": {
+            "homeserverDashboard": "Homeserver Dashboard",
+            "ssh": "SSH Server",
+            "docker": "Docker",
+        },
+    }
+
+
+def save_services_config(config):
+    """Save services configuration to JSON file."""
+    with open(SERVICES_CONFIG_PATH, "w") as f:
+        json.dump(config, f, indent=4)
+
+
+def get_all_active_services():
+    """Auto-detect all active systemd services."""
+    try:
+        result = subprocess.run(
+            [
+                "systemctl",
+                "list-units",
+                "--type=service",
+                "--state=active",
+                "--no-pager",
+                "--no-legend",
+                "--plain",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+
+        services = {}
+        for line in result.stdout.strip().splitlines():
+            parts = line.split()
+            if len(parts) >= 1:
+                unit = parts[0]
+                if unit.endswith(".service"):
+                    name = unit[:-8]
+                    services[name] = name.replace("-", " ").title()
+
+        return services
+
+    except Exception:
+        return {}
 
 
 # ============================================================
@@ -182,17 +249,6 @@ def get_system_details():
 # SERVICE MONITORING
 # ============================================================
 
-MONITORED_SERVICES = {
-    "homeserverDashboard": "Homeserver Dashboard",
-    "arduino-desk": "Arduino Desk Display",
-    "ssh": "SSH Server",
-    "docker": "Docker",
-    "smartmontools": "SMART Monitoring",
-    "smbd": "Samba SMB",
-    "nmbd": "Samba NetBIOS",
-    "tailscaled": "Tailscale",
-}
-
 
 def get_service_status(service_name):
     """
@@ -232,9 +288,17 @@ def get_services_info():
     Return the status of important server services.
     """
 
+    config = load_services_config()
+    show_all = config.get("show_all", False)
+
+    if show_all:
+        monitored = get_all_active_services()
+    else:
+        monitored = config.get("services", {})
+
     services = {}
 
-    for service_name, display_name in MONITORED_SERVICES.items():
+    for service_name, display_name in monitored.items():
         data = get_service_status(service_name)
 
         services[service_name] = {
@@ -254,6 +318,7 @@ def get_services_info():
         "total": len(services),
         "active": active_count,
         "inactive": len(services) - active_count,
+        "show_all": show_all,
     }
 
 

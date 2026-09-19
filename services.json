@@ -1,0 +1,13 @@
+{
+    "show_all": false,
+    "services": {
+        "homeserverDashboard": "Homeserver Dashboard",
+        "arduino-desk": "Arduino Desk Display",
+        "ssh": "SSH Server",
+        "docker": "Docker",
+        "smartmontools": "SMART Monitoring",
+        "smbd": "Samba SMB",
+        "nmbd": "Samba NetBIOS",
+        "tailscaled": "Tailscale"
+    }
+}
