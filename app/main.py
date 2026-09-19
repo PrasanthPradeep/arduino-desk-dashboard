@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.metrics import (
@@ -25,15 +25,6 @@ app.mount(
     StaticFiles(directory=BASE_DIR / "static"),
     name="static",
 )
-
-
-@app.get("/manifest.json")
-def manifest():
-    manifest_path = BASE_DIR / "static" / "manifest.json"
-    return JSONResponse(
-        content=manifest_path.read_text(encoding="utf-8"),
-        media_type="application/manifest+json",
-    )
 
 
 @app.get("/", response_class=HTMLResponse)
