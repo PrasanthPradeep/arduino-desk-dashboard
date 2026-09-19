@@ -624,12 +624,19 @@
         }
 
         @media (max-width: 650px) {
+            .container {
+                padding: 16px 12px;
+                overflow-x: hidden;
+            }
+
             .phase3-grid {
                 grid-template-columns: 1fr;
             }
 
             .phase3-services-grid {
                 grid-template-columns: 1fr;
+                max-height: 60vh;
+                overflow-y: auto;
             }
 
             .section-header {
@@ -642,6 +649,14 @@
                 text-align: center;
                 padding: 10px 12px;
                 font-size: 13px;
+            }
+
+            .phase3-service-name {
+                font-size: 12px;
+            }
+
+            .phase3-service-status {
+                font-size: 10px;
             }
         }
     </style>
