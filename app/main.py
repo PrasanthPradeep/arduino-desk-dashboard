@@ -120,6 +120,12 @@ def drives_config():
     return load_drives_config()
 
 
+@app.post("/api/drives/config")
+def update_drives_config(body: dict):
+    save_drives_config(body)
+    return body
+
+
 @app.get("/api/drives/discover")
 def discover_drives():
     return get_all_block_devices()

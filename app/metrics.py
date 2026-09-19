@@ -65,9 +65,24 @@ def load_drives_config():
     except Exception:
         pass
 
-    return {
-        "drives": {},
-    }
+    config = auto_detect_drives()
+    save_drives_config(config)
+    return config
+
+
+def auto_detect_drives():
+    """Auto-detect drives on first run and create config."""
+    devices = get_lsblk_info()
+
+    drives = {}
+    for name, info in devices.items():
+        key = info["serial"] if info["serial"] else name
+        drives[key] = {
+            "display_name": info["model"] or name,
+            "mount": "",
+        }
+
+    return {"drives": drives}
 
 
 def save_drives_config(config):

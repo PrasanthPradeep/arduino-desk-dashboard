@@ -1,12 +1,8 @@
 {
     "drives": {
         "sda": {
-            "display_name": "Storage Drive",
-            "mount": "/srv/storage"
-        },
-        "sdb": {
-            "display_name": "System Drive",
-            "mount": "/"
+            "display_name": "VMware Virtual S",
+            "mount": ""
         }
     }
 }

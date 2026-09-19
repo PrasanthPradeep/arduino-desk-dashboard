@@ -1552,10 +1552,55 @@
             return;
         }
 
-        for (const [serial, drive] of Object.entries(drives)) {
-            const card = createDriveCard(serial, drive.display_name || serial);
+        for (const [key, drive] of Object.entries(drives)) {
+            if (!drive.mount) {
+                const card = document.createElement("div");
+                card.className = "card drive";
+                card.id = "drive-" + key;
+
+                card.innerHTML = `
+                    <div class="drive-header">
+                        <div>
+                            <div class="drive-name">${drive.display_name || key}</div>
+                            <div class="drive-model">Mount point not set</div>
+                            <div class="drive-capacity">
+                                Key: <strong>${key}</strong>
+                            </div>
+                        </div>
+                        <button
+                            class="service-btn add"
+                            onclick="setDriveMount('${key}')"
+                            title="Set mount point"
+                        >⚙</button>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+                continue;
+            }
+
+            const card = createDriveCard(key, drive.display_name || key);
             grid.appendChild(card);
         }
+    }
+
+    async function setDriveMount(key) {
+        const mount = prompt("Enter mount point for this drive (e.g. / or /srv/storage):");
+        if (!mount) return;
+
+        const config = driveConfig.drives || {};
+        if (config[key]) {
+            config[key].mount = mount;
+        }
+
+        await fetch("/api/drives/config", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({drives: config}),
+        });
+
+        await loadDriveConfig();
+        updateDrivesFromConfig();
     }
 
     function updateDrive(
