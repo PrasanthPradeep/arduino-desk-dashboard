@@ -117,7 +117,12 @@
         .refresh-info {
             color: var(--muted);
             font-size: 13px;
-            text-align: right;
+            display: block;
+            margin-top: 6px;
+        }
+
+        .refresh-info span {
+            margin-right: 4px;
         }
 
         .grid {
@@ -637,16 +642,8 @@
                 display: grid;
                 grid-template-columns: 1fr auto;
                 align-items: start;
+                margin-bottom: 24px;
                 gap: 12px;
-            }
-
-            .header-right {
-                grid-row: 1;
-                grid-column: 2;
-            }
-
-            .refresh-info {
-                text-align: right;
             }
 
             .refresh-interval {
@@ -715,13 +712,13 @@
         <div class="title">
             <h1>Homeserver Dashboard</h1>
             <p>Home server monitoring & Arduino control</p>
+            <div class="refresh-info">
+                <span class="refresh-interval">Auto refresh: 5 seconds</span>
+                <span id="last-update">Waiting for data...</span>
+            </div>
         </div>
 
         <div class="header-right">
-            <div class="refresh-info">
-                <span class="refresh-interval">Auto refresh: 5 seconds</span><br>
-                <span id="last-update">Waiting for data...</span>
-            </div>
             <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
                 <span id="theme-icon">&#9789;</span>
             </button>
