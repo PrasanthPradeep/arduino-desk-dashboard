@@ -24,4 +24,7 @@ Thumbs.db
 # Local backups
 *.backup
 *.bak
+
+# Config files
 service.json
+drives.json
