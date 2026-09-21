@@ -9,6 +9,7 @@ from app.metrics import (
     get_services_info,
     get_system_details,
     get_all_block_devices,
+    get_extra_metrics,
     load_services_config,
     save_services_config,
     load_drives_config,
@@ -148,3 +149,8 @@ def remove_drive(serial: str):
     config["drives"].pop(serial, None)
     save_drives_config(config)
     return config
+
+
+@app.get("/api/extra")
+def extra():
+    return get_extra_metrics()

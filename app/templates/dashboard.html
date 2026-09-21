@@ -1065,6 +1065,51 @@
 
 
     <!-- =====================================================
+         EXTRA METRICS
+         ===================================================== -->
+
+    <section class="phase3-section">
+
+        <h2>System Metrics</h2>
+
+        <div class="phase3-grid">
+
+            <div class="phase3-info-card">
+                <div class="phase3-info-label">System Load (1/5/15 min)</div>
+                <div class="phase3-info-value" id="extra-load">—</div>
+            </div>
+
+            <div class="phase3-info-card">
+                <div class="phase3-info-label">Swap Usage</div>
+                <div class="phase3-info-value" id="extra-swap">—</div>
+            </div>
+
+            <div class="phase3-info-card">
+                <div class="phase3-info-label">Network Interfaces</div>
+                <div class="phase3-info-value" id="extra-interfaces">—</div>
+            </div>
+
+            <div class="phase3-info-card">
+                <div class="phase3-info-label">Disk I/O (Read/Write)</div>
+                <div class="phase3-info-value" id="extra-disk-io">—</div>
+            </div>
+
+            <div class="phase3-info-card">
+                <div class="phase3-info-label">DNS Speed</div>
+                <div class="phase3-info-value" id="extra-dns">—</div>
+            </div>
+
+            <div class="phase3-info-card">
+                <div class="phase3-info-label">Public IP</div>
+                <div class="phase3-info-value" id="extra-public-ip">—</div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
          PHASE 3 - SERVICES
          ===================================================== -->
 
@@ -2611,11 +2656,116 @@
 
 
     /*
+     * ============================================================
+     * EXTRA METRICS
+     * ============================================================
+     */
+
+    let cachedPublicIP = null;
+    let publicIPLastFetch = 0;
+
+    function updateExtraMetrics(extra) {
+
+        if (!extra) {
+            return;
+        }
+
+        /* System Load */
+        if (extra.load) {
+            const l = extra.load;
+            setText(
+                "extra-load",
+                l.load_1 !== null
+                    ? l.load_1 + " / " + l.load_5 + " / " + l.load_15
+                    : "—"
+            );
+        }
+
+        /* Swap */
+        if (extra.swap) {
+            const s = extra.swap;
+            setText(
+                "extra-swap",
+                s.total_gb > 0
+                    ? s.used_gb + " / " + s.total_gb + " GB (" + s.percent + "%)"
+                    : "No swap"
+            );
+        }
+
+        /* Network Interfaces */
+        if (extra.interfaces) {
+            const ifaces = Object.entries(extra.interfaces);
+            if (ifaces.length > 0) {
+                const html = ifaces.map(function([name, ip]) {
+                    return '<div style="margin-bottom:4px;"><strong>' + name + '</strong>: ' + ip + '</div>';
+                }).join("");
+                document.getElementById("extra-interfaces").innerHTML = html;
+            }
+        }
+
+        /* Disk I/O */
+        if (extra.disk_io) {
+            const d = extra.disk_io;
+            setText(
+                "extra-disk-io",
+                "R: " + d.read_mb + " MB / W: " + d.write_mb + " MB"
+            );
+        }
+
+        /* DNS Speed */
+        if (extra.dns) {
+            setText(
+                "extra-dns",
+                extra.dns.dns_ms !== null
+                    ? extra.dns.dns_ms + " ms (" + extra.dns.status + ")"
+                    : "Failed"
+            );
+        }
+
+        /* Public IP (cache for 1 hour) */
+        if (extra.public_ip) {
+            const now = Date.now();
+            if (extra.public_ip.ip) {
+                cachedPublicIP = extra.public_ip.ip;
+                publicIPLastFetch = now;
+                setText("extra-public-ip", extra.public_ip.ip);
+            } else if (cachedPublicIP) {
+                setText("extra-public-ip", cachedPublicIP + " (cached)");
+            } else {
+                setText("extra-public-ip", "Failed");
+            }
+        }
+    }
+
+
+    async function updateExtra() {
+
+        try {
+            const response = await fetch(
+                "/api/extra",
+                { cache: "no-store" }
+            );
+
+            if (!response.ok) {
+                throw new Error("Extra metrics request failed");
+            }
+
+            const extra = await response.json();
+            updateExtraMetrics(extra);
+
+        } catch (error) {
+            console.error("Extra metrics update failed:", error);
+        }
+    }
+
+
+    /*
      * Initial load.
      */
 
     updateDashboard();
     updatePhase3();
+    updateExtra();
     loadShowAllState();
     loadCuratedServices();
     loadDriveConfig().then(() => updateDrivesFromConfig());
@@ -2633,6 +2783,11 @@
     setInterval(
         refreshServicesStatus,
         900000
+    );
+
+    setInterval(
+        updateExtra,
+        30000
     );
 
 </script>

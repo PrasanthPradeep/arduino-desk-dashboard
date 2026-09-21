@@ -1079,6 +1079,105 @@ def get_arduino_service_status():
 
 
 # ============================================================
+# EXTRA METRICS
+# ============================================================
+
+def get_system_load():
+    """Get system load averages (1, 5, 15 min)."""
+    try:
+        load1, load5, load15 = os.getloadavg()
+        return {
+            "load_1": round(load1, 2),
+            "load_5": round(load5, 2),
+            "load_15": round(load15, 2),
+        }
+    except Exception:
+        return {"load_1": None, "load_5": None, "load_15": None}
+
+
+def get_swap_usage():
+    """Get swap memory usage."""
+    try:
+        swap = psutil.swap_memory()
+        return {
+            "total_gb": round(swap.total / (1024 ** 3), 2),
+            "used_gb": round(swap.used / (1024 ** 3), 2),
+            "free_gb": round(swap.free / (1024 ** 3), 2),
+            "percent": round(swap.percent, 1),
+        }
+    except Exception:
+        return {"total_gb": 0, "used_gb": 0, "free_gb": 0, "percent": 0}
+
+
+def get_network_interfaces():
+    """Get network interface IP addresses."""
+    try:
+        addrs = psutil.net_if_addrs()
+        interfaces = {}
+        for iface, addr_list in addrs.items():
+            for addr in addr_list:
+                if addr.family.name == "AF_INET":
+                    interfaces[iface] = addr.address
+        return interfaces
+    except Exception:
+        return {}
+
+
+def get_disk_io():
+    """Get disk I/O counters."""
+    try:
+        io = psutil.disk_io_counters()
+        return {
+            "read_mb": round(io.read_bytes / (1024 ** 2), 1),
+            "write_mb": round(io.write_bytes / (1024 ** 2), 1),
+            "read_count": io.read_count,
+            "write_count": io.write_count,
+        }
+    except Exception:
+        return {"read_mb": 0, "write_mb": 0, "read_count": 0, "write_count": 0}
+
+
+def get_dns_speed():
+    """Measure DNS resolution speed to 8.8.8.8."""
+    try:
+        import socket
+        start = time.time()
+        socket.getaddrinfo("google.com", 80)
+        elapsed = (time.time() - start) * 1000
+        return {"dns_ms": round(elapsed, 1), "status": "OK"}
+    except Exception:
+        return {"dns_ms": None, "status": "FAILED"}
+
+
+def get_public_ip():
+    """Get public IP address."""
+    try:
+        result = subprocess.run(
+            ["curl", "-s", "--max-time", "5", "https://api.ipify.org"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return {"ip": result.stdout.strip()}
+    except Exception:
+        pass
+    return {"ip": None}
+
+
+def get_extra_metrics():
+    """Return all extra metrics."""
+    return {
+        "load": get_system_load(),
+        "swap": get_swap_usage(),
+        "interfaces": get_network_interfaces(),
+        "disk_io": get_disk_io(),
+        "dns": get_dns_speed(),
+        "public_ip": get_public_ip(),
+    }
+
+
+# ============================================================
 # COMPLETE DASHBOARD SNAPSHOT
 # ============================================================
 
@@ -1093,4 +1192,5 @@ def get_dashboard_data():
         "smart": get_smart_info(),
         "network": get_network_info(),
         "arduino": get_arduino_service_status(),
+        "extra": get_extra_metrics(),
     }
