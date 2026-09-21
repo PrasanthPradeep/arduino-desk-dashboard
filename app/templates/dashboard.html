@@ -1104,6 +1104,11 @@
                 <div class="phase3-info-value" id="extra-public-ip">—</div>
             </div>
 
+            <div class="phase3-info-card">
+                <div class="phase3-info-label">Network Traffic</div>
+                <div class="phase3-info-value" id="extra-net-bytes">—</div>
+            </div>
+
         </div>
 
     </section>
@@ -1267,6 +1272,14 @@
         }
 
         return Number(value).toFixed(2) + " GB";
+    }
+
+
+    function formatSpeed(kbs) {
+        if (kbs >= 1024) {
+            return (kbs / 1024).toFixed(1) + " MB/s";
+        }
+        return kbs.toFixed(1) + " KB/s";
     }
 
 
@@ -2734,6 +2747,16 @@
             } else {
                 setText("extra-public-ip", "Failed");
             }
+        }
+
+        /* Network Bytes */
+        if (extra.net_bytes) {
+            const n = extra.net_bytes;
+            setText(
+                "extra-net-bytes",
+                "↓ " + formatSpeed(n.recv_speed_kbs) + " / ↑ " + formatSpeed(n.sent_speed_kbs) +
+                " | Total: ↓ " + n.recv_mb + " MB / ↑ " + n.sent_mb + " MB"
+            );
         }
     }
 

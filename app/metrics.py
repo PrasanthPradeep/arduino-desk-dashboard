@@ -1165,6 +1165,45 @@ def get_public_ip():
     return {"ip": None}
 
 
+_net_last = {"bytes_sent": 0, "bytes_recv": 0, "time": 0}
+
+
+def get_network_bytes():
+    """Get network bytes sent/received with speed calculation."""
+    try:
+        io = psutil.net_io_counters()
+        now = time.time()
+
+        sent_mb = round(io.bytes_sent / (1024 ** 2), 1)
+        recv_mb = round(io.bytes_recv / (1024 ** 2), 1)
+
+        sent_speed = 0.0
+        recv_speed = 0.0
+
+        if _net_last["time"] > 0:
+            dt = now - _net_last["time"]
+            if dt > 0:
+                sent_speed = round(
+                    (io.bytes_sent - _net_last["bytes_sent"]) / dt / 1024, 1
+                )
+                recv_speed = round(
+                    (io.bytes_recv - _net_last["bytes_recv"]) / dt / 1024, 1
+                )
+
+        _net_last["bytes_sent"] = io.bytes_sent
+        _net_last["bytes_recv"] = io.bytes_recv
+        _net_last["time"] = now
+
+        return {
+            "sent_mb": sent_mb,
+            "recv_mb": recv_mb,
+            "sent_speed_kbs": sent_speed,
+            "recv_speed_kbs": recv_speed,
+        }
+    except Exception:
+        return {"sent_mb": 0, "recv_mb": 0, "sent_speed_kbs": 0, "recv_speed_kbs": 0}
+
+
 def get_extra_metrics():
     """Return all extra metrics."""
     return {
@@ -1174,6 +1213,7 @@ def get_extra_metrics():
         "disk_io": get_disk_io(),
         "dns": get_dns_speed(),
         "public_ip": get_public_ip(),
+        "net_bytes": get_network_bytes(),
     }
 
 
