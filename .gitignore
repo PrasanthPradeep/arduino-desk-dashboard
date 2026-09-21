@@ -26,5 +26,5 @@ Thumbs.db
 *.bak
 
 # Config files
-service.json
+services.json
 drives.json
